@@ -1,0 +1,24 @@
+{
+  "name": "ecommerce-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Irfan-Kazi-27/Ecommerce-Backend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Irfan-Kazi-27/Ecommerce-Backend/issues"
+  },
+  "homepage": "https://github.com/Irfan-Kazi-27/Ecommerce-Backend#readme",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
