@@ -3,6 +3,7 @@ import { asyncHandler } from "../utils/asyncHandler.js"
 import { ApiError } from "../utils/ApiError.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
 import { generateAccessAndRefreshtoken } from "../utils/generateToken.js"
+import { verifyJWT } from "../middleware/auth.middleware.js"
 
 
 const registerUser = asyncHandler(async (req,res) => {
@@ -71,12 +72,29 @@ const  loginUser = asyncHandler(async (req,res) => {
     .cookie("AccessToken",accessToken,options)
     .cookie("refreshToken",refreshToken,options)
     .json(new ApiResponse(200,{user:loggedInUser,accessToken},"User Logged In SuccessFully"))
-    
-    
 })
 
 const loggedOutUser = asyncHandler(async (req,res) => {
+    const user = req.user
+    await User.findByIdAndUpdate(user._id,
+        {
+            $set:{refreshToken:undefined}
+        },
+        {
+            new:true
+        })
     
+    const options = {httpOnly:true,secure:true}
+    
+    res
+    .status(200)
+    .clearCookie("AccessToken",options)
+    .clearCookie("refreshToken",options)
+    .json(
+        new ApiResponse(200,{},"logged Out SuccessFully")
+    )
+    
+
 })
 
 export {registerUser , loginUser ,loggedOutUser} 

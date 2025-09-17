@@ -10,7 +10,7 @@ export const generateAccessAndRefreshtoken = async (user_id) => {
         const accessToken= user.generateAccessToken()
 
         user.refreshToken = refreshToken
-        user.save({validateBeforeSave:true})
+        await user.save({validateBeforeSave:false})
         
         return {refreshToken,accessToken}
     } catch (error) {
