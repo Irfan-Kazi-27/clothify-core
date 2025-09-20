@@ -3,7 +3,9 @@ import { asyncHandler } from "../utils/asyncHandler.js"
 import { ApiError } from "../utils/ApiError.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
 import { generateAccessAndRefreshtoken } from "../utils/generateToken.js"
-import { verifyJWT } from "../middleware/auth.middleware.js"
+import { SendEmail } from "../utils/EmailSending.js"
+import crypto from "crypto"
+
 
 
 const registerUser = asyncHandler(async (req,res) => {
@@ -97,4 +99,99 @@ const loggedOutUser = asyncHandler(async (req,res) => {
 
 })
 
-export {registerUser , loginUser ,loggedOutUser} 
+const forgotPassword = asyncHandler(async (req,res) => {
+    //email ->req.body
+    //check if user exits or not
+    //generate a token
+    //save it into User resetToken
+    //send the Mail to the User
+   
+   
+    const { email } = req.body
+
+    if (!email) {
+      throw new ApiError(403,"Email is required to send the Veriticatoion link")
+    }
+    
+     const findedUser = await User.findOne({email})
+    if(!findedUser) {
+        throw new ApiError(404,"User not Found")
+    }
+    
+    const token = crypto.randomBytes(32).toString("hex");
+    const tokenAddingIntoUserDoc = await User.findByIdAndUpdate(findedUser._id,
+        {
+            $set:{resettoken:token}
+        },
+        {
+            new:true
+        }
+    ).select("-password -refreshToken")
+
+    if (!tokenAddingIntoUserDoc) {
+        throw new ApiError(402,"resetToken Not Added")
+    }
+
+    const EmailSending = await SendEmail(findedUser.email,findedUser.username,token)
+
+    if (!EmailSending) {
+        throw new ApiError(403,"Email Not Generated Something Went Wrong")
+    }
+
+    return res.status(200)
+    .json(
+        new ApiResponse(
+            200,
+            {EmailSending,tokenAddingIntoUserDoc},
+            "Email Send SuccessFully"
+        )
+    )
+})
+
+const resetPassword = asyncHandler(async (req,res) => {
+    //resettoke->req.query
+    //newpassword -> req.body
+    //find user based on reset token
+    //i got the user then find the user by id and then update the password
+    //send the response that password is updatete
+
+    const {resettoken} = req.query
+    const {newpassword} = req.body
+    if (!newpassword) {
+        throw new ApiError(403,"Password is required To change the data")
+    }
+
+    if (!resettoken) {
+        throw new ApiError(403,"Token Not Found")
+    }
+
+    if (newpassword.length < 8 || newpassword[0] !==newpassword[0].toUpperCase()){
+        throw new ApiError(403,"Password Should Contain more than 8 character and Start with Upper Case")
+        }
+
+    if (!(newpassword.includes("@")||newpassword.includes('$')||newpassword.includes("#"))) {
+        throw new ApiError(403,"Password Must contain one Special character [@#$]")
+    }
+
+    const user = await User.findOne({resettoken})
+    if (!user) {
+        throw new ApiError(403,"Reset Token Expires")
+    }
+
+    user.password = newpassword
+    user.resettoken = undefined
+    await user.save()
+    
+    const passwordChangedUser = await User.findById(user._id).select("-refreshToken -password")
+
+    return res.status(200)
+    .json(
+        new ApiResponse(
+            200,
+            passwordChangedUser,
+            "Password update SuccessFully"
+        )
+    )
+})
+
+export {registerUser , loginUser ,loggedOutUser,forgotPassword,resetPassword} 
