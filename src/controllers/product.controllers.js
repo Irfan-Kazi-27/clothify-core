@@ -1,0 +1,93 @@
+import { isValidObjectId } from "mongoose"
+import {Product} from "../models/products.models.js"
+import { ApiError } from "../utils/ApiError.js"
+import { ApiResponse } from "../utils/ApiResponse.js"
+import { asyncHandler } from "../utils/asyncHandler.js"
+import {uploadfile} from "../utils/fileupload.js"
+
+const addProduct = asyncHandler(async (req,res) => { 
+    const {name,description,price,stock,category} =req.body
+    const {images} = req.files
+    if (!(name || description || price || stock|| category)) {
+        throw new ApiError(403,"Every Field Is required")
+    }
+    if (stock > 100) {
+        throw new ApiError(403,"We Cannot Take that much Stock")
+    }
+
+    if (!images) {
+        throw new ApiError(404,"Images Not Found")
+    }
+    
+    const productimages =  uploadfile(images)
+    console.log(productimages);
+    
+    const addedProduct = await Product.create({
+        name,
+        description,
+        price,
+        stock,
+        category,
+        images:productimages.url
+    })
+
+    return res.status(200)
+    .json(
+        new ApiResponse(200,addedProduct,"Product Added Succesfully")
+    )
+})
+
+const editProduct = asyncHandler(async (req,res) => {
+    const {newname,newdescription,newprice,newcategory} = req.body
+
+    const productId = req.params
+    if (!isValidObjectId(productId)) {
+        throw new ApiError(402,"Invalid Object Id")
+    }
+
+    if (!(newname && newdescription && newprice && newcategory)) {
+        throw new ApiError(403,"Atleast One neeed To be change")
+    }
+
+
+    const editedProduct = await Product.findByIdAndUpdate(
+        productId,
+        {
+          name:newname,
+          description:newdescription,
+          price:newprice,
+          category:newcategory  
+        }
+    )
+
+    if (!editedProduct) {
+        throw new ApiError(403,"Problem While Editing Product")
+    }
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200,editedProduct,"Product Added Succesfully")
+    )
+    
+})
+
+const deleteProduct = asyncHandler(async (req,res) => {
+
+    const productId = req.params
+
+    if (!isValidObjectId(productId)) {
+        throw new ApiError(403,"Invalid Product Id")
+    }
+
+    const deletingProduct = await Product.findByIdAndDelete(productId)
+    return res.status(200)
+    .json(
+        new ApiResponse(200,deletingProduct,"Product deleted Succesfully")
+    )
+})
+
+
+
+
+export {addProduct,editProduct,deleteProduct}
