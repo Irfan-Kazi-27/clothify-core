@@ -7,9 +7,19 @@ const cartSchema = new mongoose.Schema({
     },
     item:[{
         type:Schema.Types.ObjectId,
-        ref:'Product'
+        ref:'Product',
+        max:[20,"Cart Limit exceeds"]
     }],
+    quantity:{
+        type:Number,
+        default:1
+    },
+    TotalPrice:{
+        type:Number,
+        default:0
+    }
 
 },{timestamps:true})
 
-const Cart = mongoose.model('Cart',cartSchema)
+export const Cart = mongoose.model('Cart',cartSchema)
+
