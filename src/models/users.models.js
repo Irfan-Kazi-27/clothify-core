@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken"
 
@@ -25,6 +25,10 @@ const userSchema =  new mongoose.Schema({
         enum:["user","admin"],
         default:"user"
     },
+    orders:[{
+        type:Schema.Types.ObjectId,
+        ref:"Product"
+    }],
     refreshToken:{
         type:String
     },

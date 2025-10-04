@@ -22,8 +22,11 @@ const orderSchema = new mongoose.Schema({
         type:Number,
         required:true
     },
-    status:{
+    Status:{
         type:String,
-        enum:['']
+        enum: ["PENDING", "PAID", "FAILED"],
+        default:"PENDING"
     }
 },{timestamps:true})
+
+export const  Order = mongoose.model("Order",orderSchema)

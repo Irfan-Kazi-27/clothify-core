@@ -3,24 +3,35 @@ import {Product} from "../models/products.models.js"
 import { ApiError } from "../utils/ApiError.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
 import { asyncHandler } from "../utils/asyncHandler.js"
-import {uploadfile} from "../utils/fileupload.js"
+import {uploadFile} from "../utils/fileupload.js"
+
+
 
 const addProduct = asyncHandler(async (req,res) => { 
     const {name,description,price,stock,category} =req.body
-    const {images} = req.files
-    if (!(name || description || price || stock|| category)) {
+    let imageUrl = []
+    
+
+    if (!req.files || req.files.length === 0) {
+        throw new ApiError(404,"File not Uploaded")
+    }
+    
+    for (const file of req.files) {
+        const productimages = await uploadFile(file.path)
+        if(productimages) imageUrl.push(productimages.url)
+    }
+     
+    
+    if (!name || !description || !price || !stock|| !category) {
         throw new ApiError(403,"Every Field Is required")
     }
     if (stock > 100) {
         throw new ApiError(403,"We Cannot Take that much Stock")
     }
 
-    if (!images) {
-        throw new ApiError(404,"Images Not Found")
-    }
+   
     
-    const productimages =  uploadfile(images)
-    console.log(productimages);
+   
     
     const addedProduct = await Product.create({
         name,
@@ -28,7 +39,7 @@ const addProduct = asyncHandler(async (req,res) => {
         price,
         stock,
         category,
-        images:productimages.url
+        images:imageUrl
     })
 
     return res.status(200)

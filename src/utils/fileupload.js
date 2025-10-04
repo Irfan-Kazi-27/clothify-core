@@ -4,18 +4,27 @@ import fs from "fs"
 cloudinary.config({
     cloud_name:process.env.CLOUD_NAME,
     api_key:process.env.CLOUDINARY_API_KEY,
-    api_secret:process.env.CLOUDINARY_SECRET_API_KEY
+    api_secret:process.env.CLOUDINARY_API_SECRET
 })
 
-const uploadfile = (localpath)=>{
-    try {
-        if (!localpath) return "File Path Not received"
-        const response = cloudinary.uploader.upload(localpath,{resource_type:auto})
-        fs.unlinkSync(localpath)
-    } catch (error) {
-        console.log(error);
-        fs.unlinkSync(error)
-    }
+
+
+const uploadFile = async (localPath)=>{
+      try{
+        if(!localPath) return "file path is not received";
+        //uploading file to cloudinary
+        const response = await cloudinary.uploader.upload(localPath, {
+            resource_type: "auto",
+        });
+          fs.unlinkSync(localPath);
+          return response;
+      }catch(err){
+        console.error("Cloudinary upload error:", err.message);
+        fs.unlinkSync(localPath);
+        return null // Delete the file if upload fails
+      } 
 }
 
-export {uploadfile}
+
+
+export {uploadFile};
