@@ -17,11 +17,11 @@ import productRouter from "./routes/product.routes.js"
 app.use("/api/v1/products",productRouter)
 
 //Cart Router
-// import cartRouter from "./routes/cart.routes.js"
-// app.use("/api/v1/carts",cartRouter)
+import cartRouter from "./routes/cart.routes.js"
+app.use("/api/v1/carts",cartRouter)
 
-// //Categories Router
-// import cartegoryRouter from "./routes/categories.route.js"
-// app.use("/api/v1/carts",cartegoryRouter)
+//Categories Router
+import cartegoryRouter from "./routes/categories.route.js"
+app.use("/api/v1/category",cartegoryRouter)
 
 
