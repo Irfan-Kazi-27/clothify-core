@@ -1,4 +1,5 @@
-import mongoose from "mongoose";
+import mongoose,{ Schema } from "mongoose";
+
 
 const reviewSchema = new mongoose.Schema({
     user:{
@@ -11,7 +12,8 @@ const reviewSchema = new mongoose.Schema({
     },
     rating:{
         type:Number,
-        required:true
+        required:true,
+        default:0
     },
     comment:{
         type:String,

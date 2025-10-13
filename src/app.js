@@ -24,4 +24,7 @@ app.use("/api/v1/carts",cartRouter)
 import cartegoryRouter from "./routes/categories.route.js"
 app.use("/api/v1/category",cartegoryRouter)
 
+//Review Router
+import reviewRouter from './routes/review.routes.js'
+app.use('/api/v1/review',reviewRouter)
 
