@@ -13,6 +13,9 @@ router.use(IsAdmin)
 
 
 router.route("/add-product").post(upload.array("images",5),addProduct)
+router.route("/edit-product/:productId").patch(editProduct)
+router.route("/delete-product/:productId").delete(deleteProduct)
+
 
 
  export default router
