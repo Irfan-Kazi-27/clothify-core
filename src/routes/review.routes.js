@@ -8,8 +8,8 @@ router.use(verifyJWT)
 
 router.route("/addreview/:productId").post(AddReview)
 router.route("/editreview/:productId").patch(EditReview)
-// router.route("").post(AddReview)
-// router.route("").post(AddReview)
+router.route("/deletereview/:productId").delete(DeleteReview)
+router.route("/getreview/:productId").get(getReviewOnAProduct)
 
 
 export default router

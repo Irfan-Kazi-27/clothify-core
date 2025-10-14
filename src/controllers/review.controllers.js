@@ -111,11 +111,61 @@ const EditReview = asyncHandler(async (req,res) => {
 })
 
 const DeleteReview = asyncHandler(async (req,res) => {
+    //get the product Id
+    const {productId} = req.params
 
+    if (!isValidObjectId(productId)) {
+        throw new ApiError(403,"Invalid Product Id")
+    }
+    //get the user Id
+    const userId = req.user._id
+    //find the review if not send error
+    const thereview = await Review.findOne({user:userId,product:productId})
+
+    if (!thereview) {
+        throw new ApiError(404,"Review Not Found")
+    }
+    //if get the result then check for the user Id and requested Id
+    if (thereview.user.toString() !== userId.toString()) {
+        throw new ApiError(400,"U can Delete Only Your Review")
+    }
+    //now get the review and DeleteReview
+    const deleteReview = await Review.findByIdAndDelete(thereview._id)
+
+    if (!deleteReview) {
+        throw new ApiError(402,"Review not Deleted")
+    }
+    //return the response
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(
+            200,
+            deleteReview,
+            "Review Deleted Successfully"
+        )
+    )
 })
 
 const getReviewOnAProduct = asyncHandler(async (req,res) => {
-    
+    //get the product Id 
+    const {productId} = req.params
+    //check its isValidObjectId
+    if (!isValidObjectId(productId)) {
+        throw new ApiError(403,"Invalid Object id")
+    }
+    //find the review based On productId
+    const reviewOnAProduct = await Review.find({product:productId})
+    //return the response
+     return res
+    .status(200)
+    .json(
+        new ApiResponse(
+            200,
+            reviewOnAProduct,
+            "Review Fetched Successfully"
+        )
+    ) 
 })
 
 export {AddReview,EditReview,DeleteReview,getReviewOnAProduct}
