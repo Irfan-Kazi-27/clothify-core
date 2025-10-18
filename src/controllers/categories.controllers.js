@@ -91,7 +91,7 @@ const DeleteCategory = asyncHandler(async (req,res) => {
     )
 })
 
-const getAllcategory = asyncHandler(async (req,res) => {
+const getAllcategory = asyncHandler(async ( _,res) => {
     const category = await Category.find()
    
     if (!category) {
@@ -107,4 +107,5 @@ const getAllcategory = asyncHandler(async (req,res) => {
         )
     )
 })
+
 export {CreateCategory,EditCategory,DeleteCategory,getAllcategory}
