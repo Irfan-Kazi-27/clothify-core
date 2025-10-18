@@ -6,6 +6,34 @@ import { asyncHandler } from "../utils/asyncHandler.js"
 import {uploadFile} from "../utils/fileupload.js"
 
 
+const getAllProduct = asyncHandler(async (req,res) => {
+    //add the page no ,skip and limit
+    //get the product based on this
+    //count the total number of product not neccessary optional but for Frontend
+    //return the Product
+    
+    const limit = parseInt(req.query.limit)
+    const page = parseInt(req.query.page)
+    const skip = (page-1)*limit
+
+    const product = await Product.find().skip(skip).limit(limit)
+
+    const totalproducts = await Product.countDocuments()
+    
+    if (!product) {
+        throw new ApiError(403,"There is Something Went Wrong")
+    }
+
+    return res.status(200)
+    .json(
+        new ApiResponse(
+            200,
+           [ page,totalproducts,product],
+            "Product Fetched Succesfully"
+        )   
+    )
+
+})
 
 const addProduct = asyncHandler(async (req,res) => { 
     const {name,description,price,stock,category} =req.body
@@ -51,12 +79,14 @@ const addProduct = asyncHandler(async (req,res) => {
 const editProduct = asyncHandler(async (req,res) => {
     const {newname,newdescription,newprice,newcategory} = req.body
 
-    const productId = req.params
-    if (!isValidObjectId(productId)) {
+    const {productId} = req.params
+   
+    
+    if(!isValidObjectId(productId)) {
         throw new ApiError(402,"Invalid Object Id")
     }
 
-    if (!(newname && newdescription && newprice && newcategory)) {
+    if (!newname && !newdescription && !newprice && !newcategory) {
         throw new ApiError(403,"Atleast One neeed To be change")
     }
 
@@ -85,7 +115,7 @@ const editProduct = asyncHandler(async (req,res) => {
 
 const deleteProduct = asyncHandler(async (req,res) => {
 
-    const productId = req.params
+    const {productId} = req.params
 
     if (!isValidObjectId(productId)) {
         throw new ApiError(403,"Invalid Product Id")
@@ -94,11 +124,11 @@ const deleteProduct = asyncHandler(async (req,res) => {
     const deletingProduct = await Product.findByIdAndDelete(productId)
     return res.status(200)
     .json(
-        new ApiResponse(200,deletingProduct,"Product deleted Succesfully")
+        new ApiResponse(200,deletingProduct,"The Above Fetched Product deleted Succesfully")
     )
 })
 
 
 
 
-export {addProduct,editProduct,deleteProduct}
+export {addProduct,editProduct,deleteProduct,getAllProduct}
